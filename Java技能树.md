@@ -521,6 +521,8 @@ MySQL索引背后的数据结构及算法原理（包含B树和B+树原理）htt
 
 幻读是指在一个事务中，已加锁的数据第二次读取时结果集数量不同，即可能被insert或update
 
+https://www.cnblogs.com/itcomputer/articles/5133254.html
+
 此处强烈推荐何登成大佬好文：http://hedengcheng.com/?p=771  图挂了，但是可以通过标题找到其他转载版本
 
 #### MVCC
