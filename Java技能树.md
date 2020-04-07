@@ -569,6 +569,14 @@ Next-Key Lock算法，锁定的不是单个值，而是一个范围（GAP）。�
 
 
 
+##### Gap Lock 与 Next-Key Lock
+
+官方文档：https://docs.oracle.com/cd/E17952_01/mysql-5.0-en/innodb-record-level-locks.html
+
+带翻译版：https://cloud.tencent.com/developer/article/1447138
+
+
+
 ##### 死锁
 
 在多个SQL以不同顺序申请锁时，可能会产生死锁，例如:
