@@ -477,6 +477,20 @@ https://zackku.com/redis-rdb-aof/
 
 `AOF`相对于`RDB`可靠性更高，但是默认刷盘策略为一秒一次，仍不能保证数据绝对安全；AOF记录的是操作日志，所以可读性更高，即使文件被部分破坏，也容易恢复到某个数据节点；但是存储的文件更大，写入和加载性能效率低于`RDB`
 
+
+
+#### 数据结构
+
+| Redis  | 底层数据结构                                                 | 备注                                                         |
+| ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| string | 当存储值为整数时，使用int<br />当存储值为字符串且小于32字节，使用embstr，即优化后的`SDS`<br />当存储值为字符串且大于32字节，使用raw，即SDS | `SDS`为包装后的char数组<br /><br />浮点数也通过char数组，需要计算时转成浮点数计算，计算完转成char数组保存 |
+| list   | 3.2版本前&数据较少时，使用*ziplist*<br />3.2版本前&数据较多时，使用*linkedlist*<br />3.2版本后，使用*quicklist* | [*ziplist*](https://segmentfault.com/a/1190000021576621)<br />[*linkedlist*](https://segmentfault.com/a/1190000021562338)<br />[quicklist](https://segmentfault.com/a/1190000021585652) |
+| hash   | `hashtable`                                                  | [`hashtable`](https://segmentfault.com/a/1190000021604679)   |
+| set    | 当所有元素为整数&个数小于512时，使用`intset`<br />其他情况，使用`hashtable` | [`intset`](https://segmentfault.com/a/1190000021596163)      |
+| zset   | 当元素较少时，使用*ziplist* + `hashtable`<br />当元素较多时，使用`skiplist` + `hashtable` | [`skiplist`](https://segmentfault.com/a/1190000021618668)<br />使用`skiplist` + `hashtable`是为了利用查询时`hashtable`O(1)时间复杂度和排序时`skiplist`O(logn)时间复杂度的优势 |
+
+
+
 ### Hystrix
 
 [Hystrix技术解析](https://www.jianshu.com/p/3e11ac385c73)
