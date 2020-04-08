@@ -483,7 +483,7 @@ https://zackku.com/redis-rdb-aof/
 
 | Redis  | 底层数据结构                                                 | 备注                                                         |
 | ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| string | 当存储值为整数时，使用int<br />当存储值为字符串且小于32字节，使用embstr，即优化后的`SDS`<br />当存储值为字符串且大于32字节，使用raw，即SDS | [`SDS`](https://segmentfault.com/a/1190000021509861)为包装后的char数组<br /><br />浮点数也通过char数组，需要计算时转成浮点数计算，计算完转成char数组保存 |
+| string | 当存储值为整数时，使用int<br />当存储值为字符串且小于32字节，使用embstr，即优化后的`SDS`<br />当存储值为字符串且大于32字节，使用raw，即SDS | [`SDS`](https://segmentfault.com/a/1190000021509861)为包装后的char数组<br /><br />浮点数也通过char数组，需要计算时转成浮点数计算，计算完转成char数组保存<br />SDS中最大只能保存512M数据 |
 | list   | 3.2版本前&数据较少时，使用*ziplist*<br />3.2版本前&数据较多时，使用*linkedlist*<br />3.2版本后，使用*quicklist* | [*ziplist*](https://segmentfault.com/a/1190000021576621)<br />[*linkedlist*](https://segmentfault.com/a/1190000021562338)<br />[quicklist](https://segmentfault.com/a/1190000021585652) |
 | hash   | `hashtable`                                                  | [`hashtable`](https://segmentfault.com/a/1190000021604679)   |
 | set    | 当所有元素为整数&个数小于512时，使用`intset`<br />其他情况，使用`hashtable` | [`intset`](https://segmentfault.com/a/1190000021596163)      |
