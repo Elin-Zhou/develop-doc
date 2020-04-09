@@ -1,93 +1,7 @@
-# Java技能树库
+# Java技能树
 
-## 目录
 
-<!--ts-->
-  * [Java](#java)
-    * [多线程、JUC](#多线程juc)
-      * [happens-before原则](#happens-before原则)
-      * [锁](#锁)
-          * [sychronized原理与对象锁](#sychronized原理与对象锁)
-          * [AQS](#aqs)
-          * [ReentrantLock](#reentrantlock)
-          * [ReentrantReadWriteLock](#reentrantreadwritelock)
-          * [StampedLock](#stampedlock)
-      * [多线程面试题总结](#多线程面试题总结)
-      * [线程池](#线程池)
-      * [线程数](#线程数)
-      * [工具类](#工具类)
-    * [集合](#集合)
-      * [普通集合](#普通集合)
-          * [ArrayList](#arraylist)
-          * [HashMap](#hashmap)
-      * [JUC中集合](#juc中集合)
-          * [ConcurrentHashMap](#concurrenthashmap)
-          * [CopyOnWriteList](#copyonwritelist)
-          * [ThreadLocal](#threadlocal)
-          * [ArrayBlockingQueue与LinkedBlockingQueue的差别](#arrayblockingqueue与linkedblockingqueue的差别)
-    * [JVM](#jvm)
-      * [GC](#gc)
-          * [内存划分](#内存划分)
-          * [GCROOT](#gcroot)
-          * [GC算法](#gc算法)
-          * [对象什么时候进入老年代](#对象什么时候进入老年代)
-          * [G1](#g1)
-      * [类加载](#类加载)
-    * [NIO](#nio)
-* [框架](#框架)
-    * [Spring](#spring)
-      * [IOC](#ioc)
-          * [IOC容器启动过程——AbstractApplicationContext.refresh()](#ioc容器启动过程abstractapplicationcontextrefresh)
-            * [1.prepareRefresh() 准备工作，设置启动状态，处理配置文件占位符等](#1preparerefresh-准备工作设置启动状态处理配置文件占位符等)
-            * [2.obtainFreshBeanFactory() 将需要的Bean解析成BeanDefinition并注册到BeanFactory中](#2obtainfreshbeanfactory-将需要的bean解析成beandefinition并注册到beanfactory中)
-            * [3.prepareBeanFactory(beanFactory) 准备BeanFactory](#3preparebeanfactorybeanfactory-准备beanfactory)
-            * [4.postProcessBeanFactory(beanFactory) 在注册了所有Bean之后，PostBeanProcessor注册前预留的拓展点（模板方法）](#4postprocessbeanfactorybeanfactory-在注册了所有bean之后postbeanprocessor注册前预留的拓展点模板方法)
-            * [5.invokeBeanFactoryPostProcessors(beanFactory) 调用所有的BeanFactoryPostProcessors.postProcessBeanFactory](#5invokebeanfactorypostprocessorsbeanfactory-调用所有的beanfactorypostprocessorspostprocessbeanfactory)
-            * [6.registerBeanPostProcessors(beanFactory) 注册ProcessBeanProcessor](#6registerbeanpostprocessorsbeanfactory-注册processbeanprocessor)
-            * [7.initMessageSource() 处理国际化资源](#7initmessagesource-处理国际化资源)
-            * [8.initApplicationEventMulticaster() 初始化事件广播](#8initapplicationeventmulticaster-初始化事件广播)
-            * [9.onRefresh() 初始化bean之前的预留的拓展点（模板方法）](#9onrefresh-初始化bean之前的预留的拓展点模板方法)
-            * [10.registerListeners() 检查和注册事件监听器](#10registerlisteners-检查和注册事件监听器)
-            * [11.finishBeanFactoryInitialization(beanFactory) 初始化所有的非懒加载单例](#11finishbeanfactoryinitializationbeanfactory-初始化所有的非懒加载单例)
-            * [12.finishRefresh() 广播初始化完成事件](#12finishrefresh-广播初始化完成事件)
-      * [AOP](#aop)
-      * [SpringMVC](#springmvc)
-      * [SpringCloud](#springcloud)
-      * [Spring中的各类BeanPostProcessor](#spring中的各类beanpostprocessor)
-    * [RocketMQ](#rocketmq)
-    * [Tomcat](#tomcat)
-    * [Netty](#netty)
-    * [Redis](#redis)
-          * [高可用和哨兵机制](#高可用和哨兵机制)
-* [数据库](#数据库)
-    * [MySQL](#mysql)
-      * [单表理想性能计算](#单表理想性能计算)
-      * [索引（InnoDB）](#索引innodb)
-      * [事务特性 ACID](#事务特性-acid)
-      * [事务隔离级别](#事务隔离级别)
-      * [锁](#锁-1)
-          * [锁的种类](#锁的种类)
-          * [锁的算法](#锁的算法)
-            * [Record Lcok](#record-lcok)
-            * [Gap Lock](#gap-lock)
-            * [Next-Key Lock](#next-key-lock)
-          * [死锁](#死锁)
-    * [MongoDB/ElasticSearch/HBase设计原理](#mongodbelasticsearchhbase设计原理)
-* [常用设计模式](#常用设计模式)
-* [网络](#网络)
-    * [三次握手四次挥手](#三次握手四次挥手)
-* [数据结构](#数据结构)
-* [其他](#其他)
-    * [引用](#引用)
-    * [CPU load和使用率的关系](#cpu-load和使用率的关系)
-    * [分布式系统设计原则：CAP原则](#分布式系统设计原则cap原则)
-    * [分布式事务](#分布式事务)
-    * [Java字节码增强探秘](#java字节码增强探秘)
-* [汇总](#汇总)
 
-<!-- Added by: elinzhou, at: 2020年 1月15日 星期三 16时26分22秒 CST -->
-
-<!--te-->
 ## Java 
 
 ### 多线程、JUC
@@ -262,6 +176,10 @@ CountDownLatch
 - 大对象，在分配时可直接进入老年代，或年轻代可用内存不足时，通过担保机制进入老年代
 - 年龄达到阈值（默认15）
 - Survivor空间中相同年龄的所有对象大小的总和大于Survivor空间的一半，大于这些年龄的对象可以进入老年代
+
+##### 三色标记法
+
+https://juejin.im/post/5e5283abf265da573d61a311
 
 ##### G1
 
@@ -705,6 +623,34 @@ https://zhuanlan.zhihu.com/p/86426969
 - 平衡树
 - 平衡查找树——2-3树 https://www.cnblogs.com/yangecnu/p/Introduce-2-3-Search-Tree.html
 - 红黑树（2-3树的二叉实现）：高度为lgN https://www.cnblogs.com/yangecnu/p/Introduce-Red-Black-Tree.html
+
+### 源码
+
+#### HashedWheelTimer
+
+https://www.javadoop.com/post/HashedWheelTimer
+
+![4](.assets/4-20200409100840548.png)
+
+
+
+将一个轮盘分为512格，每一格跨度100ms。每个任务根据执行时间放入对应的格子里，并计算其轮次。每次循环到下一个格子时，先计算距离当前格子的执行开始时间，如果还没到，则sleep到目标时间，然后按顺序执行这个格子中轮次为0的所有任务，轮次不为0的任务全部自减；如果已经超过这个格子的deadline，即开始时间+100ms，则直接跳过这次执行。
+
+例如1000ms后执行的任务，需要放到(1000/100)%512=10号格子中，轮次为0；513000ms后执行的任务，需要放到(513000/100)%512=10，轮次为1；
+
+可以发现1000ms和513000ms后执行的任务放在了同一个队列中，但是轮次不同，第一次执行当10号格子时，100ms任务轮次为0，正常执行；513000ms任务轮次自减成0，下一次轮到的时候就可以执行了。
+
+##### 如果上一个格子占用了过多时间怎么办
+
+正常情况下，每个格子只有100ms的执行窗口期，但是在执行过程中不会判断是否执行超时，只有全部执行完，走到下一个格子时，会判断是否超过当前格子的deadline。如果超过了，当前格子不会执行，也不会自减轮次，所以其中的所有任务将延迟512*100ms执行。
+
+#### 工作线程为单线程
+
+执行所有任务的线程是单线程的，如果每个格子中的任务执行时间之和超过100ms，后续的所有任务将会受到影响，所以尽量不要提交执行时间很长的任务到HashedWheelTimer中。
+
+
+
+
 
 ## 其他
 
