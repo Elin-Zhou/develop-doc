@@ -644,7 +644,7 @@ https://www.javadoop.com/post/HashedWheelTimer
 
 正常情况下，每个格子只有100ms的执行窗口期，但是在执行过程中不会判断是否执行超时，只有全部执行完，走到下一个格子时，会判断是否超过当前格子的deadline。如果超过了，当前格子不会执行，也不会自减轮次，所以其中的所有任务将延迟512*100ms执行。
 
-#### 工作线程为单线程
+##### 工作线程为单线程
 
 执行所有任务的线程是单线程的，如果每个格子中的任务执行时间之和超过100ms，后续的所有任务将会受到影响，所以尽量不要提交执行时间很长的任务到HashedWheelTimer中。
 
@@ -664,6 +664,12 @@ https://www.javadoop.com/post/HashedWheelTimer
 ### CPU load和使用率的关系
 
 https://www.cnblogs.com/rexcheny/p/9382396.html
+
+CPU load是在一段时间内CPU正在处理以及等待CPU处理的进程数之和
+
+CPU使用率是指进程对cpu占用的时间比例
+
+例如只有一个进程使用一颗单核CPU，IO等待了15ms，CPU计算了45ms，那么此时的CPU load是1，CPU 使用率是75%
 
 ### 分布式系统设计原则：CAP原则 
 
