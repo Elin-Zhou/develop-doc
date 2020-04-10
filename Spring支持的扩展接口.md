@@ -15,19 +15,19 @@ public interface BeanPostProcessor {
 
 #### postProcessBeforeInitialization
 
-该方法将在Bean实例化完成，并注入完属性后被调用，但优先于InitializingBean#afterPropertiesSet和init-method。
+该方法将在Bean实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
 
 可以在该方法中返回包装对象或代理对象。
 
-如果此方法返回`null`，那么后续的BeanPostProcessor将不会被调用。
+如果此方法返回`null`，那么后续的`BeanPostProcessor`将不会被调用。
 
 #### postProcessAfterInitialization
 
-该方法在postProcessBeforeInitialization、InitializingBean#afterPropertiesSet、init-method调用完成之后被调用。
+该方法在`postProcessBeforeInitialization`、`InitializingBean#afterPropertiesSet`、`init-method`调用完成之后被调用。
 
 可以在该方法中返回包装对象或代理对象。
 
-如果此方法返回`null`，那么后续的BeanPostProcessor将不会被调用。
+如果此方法返回`null`，那么后续的`BeanPostProcessor`将不会被调用。
 
 ### InstantiationAwareBeanPostProcessor
 
@@ -51,7 +51,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 #### postProcessAfterInstantiation
 
-该方法在实例化Bean之后，注入属性之前被调用。
+该方法在实例化`Bean`之后，注入属性之前被调用。
 
 如果该方法返回`true`，那么后续的属性注入将被执行；如果返回`false`，那么将不执行属性的注入，也不会执行其他`InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation`方法。
 
@@ -93,7 +93,7 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 
 #### getEarlyBeanReference
 
-出现循环依赖时将会被调用，通过此方法返回一个Bean的引用。
+出现循环依赖时将会被调用，通过此方法返回一个`Bean`的引用。
 
 ### MergedBeanDefinitionPostProcessor
 
@@ -109,7 +109,7 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 
 #### postProcessMergedBeanDefinition
 
-该方法在合并完Bean定义后被调用。
+该方法在合并完`Bean`定义后被调用。
 
 例如`AutowiredAnnotationBeanPostProcessor`将在此处解析所有带`@Autowire`注解的参数。
 
@@ -147,7 +147,7 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
 
 该方法在所有`BeanDefinition`被加载完成后，`BeanFactoryPostProcessor#postProcessBeanFactory`之前被调用。
 
-可以在此处修改已加载的`BeanDefinition`，或添加自定义的`BeanDefinition`，来实现动态注册`Bean`；也可以在此方法中注册其他`BeanDefinitionRegistryPostProcessor`，但如果当前Bean也是被其他`BeanDefinitionRegistryPostProcessor#postProcessBeanFactory`加载的，那么当前Bean加载的`BeanDefinitionRegistryPostProcessor`将没有机会被执行。
+可以在此处修改已加载的`BeanDefinition`，或添加自定义的`BeanDefinition`，来实现动态注册`Bean`；也可以在此方法中注册其他`BeanDefinitionRegistryPostProcessor`，但如果当前Bean也是被其他`BeanDefinitionRegistryPostProcessor#postProcessBeanFactory`加载的，那么当前`Bean`加载的`BeanDefinitionRegistryPostProcessor`将没有机会被执行。
 
 
 
