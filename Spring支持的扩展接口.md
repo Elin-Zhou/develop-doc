@@ -113,13 +113,41 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 
 例如`AutowiredAnnotationBeanPostProcessor`将在此处解析所有带`@Autowire`注解的参数。
 
-### 
-
 ## BeanFactoryPostProcessor 族
 
 ### BeanFactoryPostProcessor
 
+```java
+public interface BeanFactoryPostProcessor {
+
+   void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
+
+}
+```
+
+#### postProcessBeanFactory
+
+该方法在所有`BeanDefinition`被加载完成后，`Bean`初始化之前被调用。
+
+可以在此处修改已加载的`BeanDefinition`，或添加自定义的`BeanDefinition`，来实现动态注册`Bean`。
+
+
+
 ### BeanDefinitionRegistryPostProcessor
+
+```java
+public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProcessor {
+   void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException;
+}
+```
+
+
+
+#### postProcessBeanDefinitionRegistry
+
+该方法在所有`BeanDefinition`被加载完成后，`BeanFactoryPostProcessor#postProcessBeanFactory`之前被调用。
+
+可以在此处修改已加载的`BeanDefinition`，或添加自定义的`BeanDefinition`，来实现动态注册`Bean`；也可以在此方法中注册其他`BeanDefinitionRegistryPostProcessor`，但如果当前Bean也是被其他`BeanDefinitionRegistryPostProcessor#postProcessBeanFactory`加载的，那么当前Bean加载的`BeanDefinitionRegistryPostProcessor`将没有机会被执行。
 
 
 
@@ -151,7 +179,11 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 
 ## Other 
 
+### FactoryBean
+
 ### InitializingBean
+
+### DisposableBean
 
 ### ApplicationListener
 
@@ -162,6 +194,8 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 ### WebMvcConfigurerAdapter
 
 ### ImportBeanDefinitionRegistrar
+
+### BeanDefinitionRegistry
 
 
 
