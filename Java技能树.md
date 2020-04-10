@@ -268,7 +268,7 @@ https://javadoop.com/post/spring-ioc
   - createBean()
     - 检查需要创建的bean的Class已经被加载
     - 准备方法覆盖（lookup-method和replace-method）
-    - 给某些BeanPostProcessors执行的机会来返回bean的代理，如InstantiationAwareBeanPostProcessor(AOP)
+    - 执行`InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation`， 给某些BeanPostProcessors执行的机会来返回bean的代理，如AOP
     - doCreateBean()
       - 创建实例
         - 检查类的访问权限
