@@ -15,7 +15,7 @@ public interface BeanPostProcessor {
 
 #### postProcessBeforeInitialization
 
-该方法将在Bean实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+该方法将在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
 
 可以在该方法中返回包装对象或代理对象。
 
@@ -153,25 +153,83 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
 
 ## Aware 族
 
-### EnvironmentAware
-
-### EmbeddedValueResolverAware
-
-### ResourceLoaderAware
-
-### ApplicationEventPublisherAware
-
-### MessageSourceAware
-
-### ApplicationContextAware
-
-
+实现了`Aware`接口的`Bean`将会在特定的场景中被`Spring`回调，并传入对应的参数供`Bean`使用。
 
 ### BeanNameAware
 
+#### setBeanName
+
+该方法在`Bean`实例化完成并注入属性后，`BeanPostProcessor#postProcessBeforeInitialization`方法前被调用。
+
+`Bean`的名称将会从入参中被传入，该name可能会被添加例如`#`之类的前缀标识符，如果想要获得原始的name，可以调用`BeanFactoryUtils#originalBeanName(String)`。
+
 ### BeanClassLoaderAware
 
+#### setBeanClassLoader
+
+该方法在`Bean`实例化完成并注入属性后，`BeanPostProcessor#postProcessBeforeInitialization`方法前被调用。
+
+`Bean`的`classLoader`将会被传入。
+
 ### BeanFactoryAware
+
+#### setBeanFactory
+
+该方法在`Bean`实例化完成并注入属性后，`BeanPostProcessor#postProcessBeforeInitialization`方法前被调用。
+
+持有当前`Bean`的`BeanFactory`将会被传入。
+
+
+
+
+
+### EnvironmentAware
+
+#### setEnvironment
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`Environment`
+
+### EmbeddedValueResolverAware
+
+#### setEmbeddedValueResolver
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`StringValueResolver`
+
+### ResourceLoaderAware
+
+#### setResourceLoader
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`ResourceLoader`
+
+### ApplicationEventPublisherAware
+
+#### setApplicationEventPublisher
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`ApplicationEventPublisher`
+
+### MessageSourceAware
+
+#### setMessageSource
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`MessageSource`
+
+### ApplicationContextAware
+
+#### setApplicationContext
+
+该方法将被`ApplicationContextAwareProcessor#postProcessBeforeInitialization`调用，即在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+
+将从入参传入`ApplicationContext`
 
 
 
