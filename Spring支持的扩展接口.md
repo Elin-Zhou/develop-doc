@@ -2,6 +2,10 @@
 
 ## BeanPostProcessor 族
 
+实现了`BeanPostProcessor`及其子类接口的`Bean`将会被`BeanFactory`在执行`refresh`中某些特殊阶段进行回调，可以在这些方法内部修改或添加类似`BeanDefinition`、创建`Bean`代理等操作。
+
+很多`Spring`框架内部使用了`BeanPostProcessor`来实现一些功能，例如`@Autowired`功能是通过`AutowiredAnnotationBeanPostProcessor`来实现。
+
 ### BeanPostProcessor
 
 ```java
@@ -15,7 +19,7 @@ public interface BeanPostProcessor {
 
 #### postProcessBeforeInitialization
 
-该方法将在`Bean`实例化完成，并注入完属性后被调用，但优先于`InitializingBean#afterPropertiesSet`和`init-method`。
+该方法将在`Bean`实例化完成，并注入完属性后被调用，但优先于`init-method`、`InitializingBean#afterPropertiesSet`和`InitializingBean#afterPropertiesSet`。
 
 可以在该方法中返回包装对象或代理对象。
 
@@ -275,13 +279,53 @@ public interface FactoryBean<T> {
 
 ### InitializingBean
 
+```java
+public interface InitializingBean {
+   void afterPropertiesSet() throws Exception;
+}
+```
+
+实现了`InitializingBean`的`Bean`将在实例化完成后被回调，具体时机是`Bean`属性注入完成、`BeanNameAware`、`BeanClassLoaderAware`、`BeanFactoryAware`三类`Aware`回调完成、`BeanPostProcessor#postProcessBeforeInitialization`调用完成之后，`BeanPostProcessor#postProcessAfterInitialization`之前。
+
+此时，`Bean`已经基本初始化完成，此时可以在此方法内部做诸如参数校验、最终初始化等操作。
+
+
+
 ### DisposableBean
+
+```java
+public interface DisposableBean {
+   void destroy() throws Exception;
+}
+```
+
+实现了`DisposableBean`的`Bean`将在销毁前被回调。
+
+可以在该方法内部做最后的清理工作，例如关闭资源等。
+
+### ApplicationRunner
+
+```java
+public interface ApplicationRunner {
+   void run(ApplicationArguments args) throws Exception;
+}
+```
+
+`Spring`将在刷新完上下文之后，依次调用所有实现了`ApplicationRunner`接口`Bean`的'run'方法。
+
+### CommandLineRunner
+
+```java
+public interface CommandLineRunner {
+   void run(String... args) throws Exception;
+}
+```
+
+`Spring`将在刷新完上下文之后，依次调用所有实现了`CommandLineRunner`接口`Bean`的'run'方法，与`ApplicationRunner`的差别是`CommandLineRunner`会将启动命令行中的参数传入`run`方法。
 
 ### ApplicationListener
 
 ### SmartLifecycle
-
-### ApplicationRunner
 
 ### WebMvcConfigurerAdapter
 
