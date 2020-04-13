@@ -325,7 +325,29 @@ public interface CommandLineRunner {
 
 ### ApplicationListener
 
-### SmartLifecycle
+
+
+### Lifecycle
+
+```java
+public interface Lifecycle {
+
+   void start();
+
+   void stop();
+
+   boolean isRunning();
+
+}
+```
+
+实现了`Lifecycle`接口的`Bean`，容器会在生命周期中的不同阶段回调对应的方法，可以在这些方法中执行特定的操作。
+
+`start`会在容器刷新的最后阶段被调用，具体时机是创建完所有的`Bean`之后，`ContextRefreshedEvent`消息广播、调用`ApplicationRunner#run`方法之前。
+
+`stop`会在容器关闭前被调用，具体时机是`ContextClosedEvent`消息广播之后，`DisposableBean#destory`方法调用之前。
+
+`isRunning`用来返回当前`Bean`是否是运行中，如果返回`true`，那么不会执行`start`方法，会执行`stop`方法；如果返回`false`，那么会执行`start`方法，不会执行`stop`方法。
 
 ### WebMvcConfigurerAdapter
 
