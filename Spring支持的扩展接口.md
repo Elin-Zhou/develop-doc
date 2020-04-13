@@ -239,6 +239,40 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
 
 ### FactoryBean
 
+```java
+public interface FactoryBean<T> {
+   T getObject() throws Exception;
+   Class<?> getObjectType();
+   boolean isSingleton();
+}
+```
+
+
+
+`FactoryBean`是一个定义工厂`Bean`的接口，如果一个`Bean`实现了这个接口，那么`Spring`在初始化的时候会创建该类型的实例，在通过该实例创建其对应的`Bean`。
+
+`FactoryBean`有三个方法需要子类来实现
+
+`isSingleton`方法用来返回当前`FactoryBean`创建的`Bean`是否为单例，如果返回`true`表示是单例(`singleton`)模式的`Bean`，如果返回`false`，表示是原型模式(`prototype`)的`Bean`。
+
+`getObjectType`方法用来返回该`FactoryBean`将会创建的`Bean`的类型。
+
+`getObject`方法返回创建的`Bean`，当`Spring`需要通过`FactoryBean`创建一个新的`Bean`的时候，将会调用`FactoryBean#getObject`来获取`Bean`并放入`IOC`容器中。
+
+#### AbstractFactoryBean
+
+`AbstractFactoryBean`继承自`FactoryBean`，提供了`getObject`方法的默认实现并添加了两个抽象方法需要子类实现。一般情况下，`AbstractFactoryBean`需要实现四个方法
+
+`isSingleton`与`FactoryBean`中的`isSingleton`方法相同。
+
+`getObjectType`与`FactoryBean`中的`getObjectType`方法相同。
+
+`createInstance`与`FactoryBean`中的`createInstance`方法相同，即`AbstractFactoryBean`中不需要实现`createInstance`方法。
+
+`destroyInstance`方法将在`Bean`被销毁前调用，用来手动处理`Bean`销毁前需要处理的工作，例如关闭资源等。
+
+
+
 ### InitializingBean
 
 ### DisposableBean
