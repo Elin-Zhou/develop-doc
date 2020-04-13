@@ -325,7 +325,15 @@ public interface CommandLineRunner {
 
 ### ApplicationListener
 
+```java
+public interface ApplicationListener<E extends ApplicationEvent> extends EventListener {
+   void onApplicationEvent(E event);
+}
+```
 
+实现`ApplicationListener`的`Bean`将在对应`ApplicationEvent`事件发生时被回调，对应的事件为`ApplicationListener`定义的类型参数，可以通过`@EventListener`实现类似效果。
+
+可以通过`ApplicationEventPublisher#publishEvent`发布消息
 
 ### Lifecycle
 
