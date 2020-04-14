@@ -351,11 +351,17 @@ public interface Lifecycle {
 
 实现了`Lifecycle`接口的`Bean`，容器会在生命周期中的不同阶段回调对应的方法，可以在这些方法中执行特定的操作。
 
-`start`会在容器刷新的最后阶段被调用，具体时机是创建完所有的`Bean`之后，`ContextRefreshedEvent`消息广播、调用`ApplicationRunner#run`方法之前。
+`start`会在容器启动的最后阶段被调用，具体时机是创建完所有的`Bean`之后，`ContextRefreshedEvent`消息广播、调用`ApplicationRunner#run`方法之前。一般情况下，`Spring`容器不会调用start()方法，所以`Lifecycle#start`不会被调用，所以需要使用`SmartLifecycle`。
 
 `stop`会在容器关闭前被调用，具体时机是`ContextClosedEvent`消息广播之后，`DisposableBean#destory`方法调用之前。
 
 `isRunning`用来返回当前`Bean`是否是运行中，如果返回`true`，那么不会执行`start`方法，会执行`stop`方法；如果返回`false`，那么会执行`start`方法，不会执行`stop`方法。
+
+### SmartLifecycle
+
+`SmartLifecycle`在`Lifecycle`基础上实现了`Phased`类，可以用来控制不同`SmartLifecycle`的执行顺序，并且在容器进行刷新时也会调用`start`方法。
+
+
 
 ### ImportBeanDefinitionRegistrar
 
@@ -373,6 +379,38 @@ public interface ImportBeanDefinitionRegistrar {
 不同于其他的组件只需要注入`IOC`容器即可被自动发现并被调用，`BeanDefinitionRegistryPostProcessor`子类需要通过`@Import`注解引入方可使用。
 
 `registerBeanDefinitions`方法将会被`ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry`调用，`ConfigurationClassPostProcessor`是通过实现了`BeanDefinitionRegistryPostProcessor`接口而获得注册`BeanDefinition`的能力，所以被调用时机与`BeanDefinitionRegistryPostProcessor`一致。
+
+
+
+## 各类接口调用时机
+
+1. BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry
+2. BeanDefinitionRegistryPostProcessor#postProcessBeanFactory
+   1. ImportBeanDefinitionRegistrar#registerBeanDefinitions
+3. BeanFactoryPostProcessor#postProcessBeanFactory
+4. InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation
+5. 创建`Bean`实例
+6. MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition
+7. InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation
+8. InstantiationAwareBeanPostProcessor#postProcessPropertyValues
+9. `Bean`属性注入
+10. BeanNameAware#setBeanName
+11. BeanClassLoaderAware#setBeanClassLoader
+12. BeanFactoryAware#setBeanFactory
+13. BeanPostProcessor#postProcessBeforeInitialization
+    1. EnvironmentAware#setEnvironment
+    2. EmbeddedValueResolverAware#setEmbeddedValueResolver
+    3. ResourceLoaderAware#setResourceLoader
+    4. ApplicationEventPublisherAware#setApplicationEventPublisher
+    5. MessageSourceAware#setMessageSource
+    6. ApplicationContextAware#setApplicationContext
+14. InitializingBean#afterPropertiesSet
+15. 执行`init-method`
+16. BeanPostProcessor#postProcessAfterInitialization
+17. Lifecycle#start
+18. ApplicationRunner#run
+19. CommandLineRunner#run
+20. 广播ContextRefreshedEvent
 
 
 
