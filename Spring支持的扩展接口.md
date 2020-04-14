@@ -321,7 +321,7 @@ public interface CommandLineRunner {
 }
 ```
 
-`Spring`将在刷新完上下文之后，依次调用所有实现了`CommandLineRunner`接口`Bean`的'run'方法，与`ApplicationRunner`的差别是`CommandLineRunner`会将启动命令行中的参数传入`run`方法。
+`Spring`将在刷新完上下文之后，依次调用所有实现了`CommandLineRunner`接口`Bean`的`run`方法，与`ApplicationRunner`的差别是`CommandLineRunner`会将启动命令行中的参数传入`run`方法。
 
 ### ApplicationListener
 
@@ -357,11 +357,22 @@ public interface Lifecycle {
 
 `isRunning`用来返回当前`Bean`是否是运行中，如果返回`true`，那么不会执行`start`方法，会执行`stop`方法；如果返回`false`，那么会执行`start`方法，不会执行`stop`方法。
 
-### WebMvcConfigurerAdapter
-
 ### ImportBeanDefinitionRegistrar
 
-### BeanDefinitionRegistry
+```java
+public interface ImportBeanDefinitionRegistrar {
+
+   public void registerBeanDefinitions(
+         AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry);
+
+}
+```
+
+该接口的作用类似与`BeanDefinitionRegistryPostProcessor`，可以在此处修改已加载的`BeanDefinition`，或添加自定义的`BeanDefinition`，来实现动态注册`Bean`；
+
+不同于其他的组件只需要注入`IOC`容器即可被自动发现并被调用，`BeanDefinitionRegistryPostProcessor`子类需要通过`@Import`注解引入方可使用。
+
+`registerBeanDefinitions`方法将会被`ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry`调用，`ConfigurationClassPostProcessor`是通过实现了`BeanDefinitionRegistryPostProcessor`接口而获得注册`BeanDefinition`的能力，所以被调用时机与`BeanDefinitionRegistryPostProcessor`一致。
 
 
 
