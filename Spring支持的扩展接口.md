@@ -2,6 +2,10 @@
 
 ## BeanPostProcessor 族
 
+BeanPostProcessor是Spring实现『开闭原则』的一大体现，因为Spring非常庞大且已成体系，众多的开发者包括Spring框架的开发者不可能随意改动框架原来来实现个性化的需求，所以BeanPostProcessor应运而生，Spring 会在启动的不同阶段调用不同的BeanPostProcessor实现类，而这些BeanPostProcessor实现类由开发者自行实现（也有许多Spring内置的BeanPostProcessor）来实现启动中的各类需求。
+
+> 开闭原则定义：一个软件实体。如类/模块/函都应该对扩展开放，对修改关闭。
+
 实现了`BeanPostProcessor`及其子类接口的`Bean`将会被`BeanFactory`在执行`refresh`中某些特殊阶段进行回调，可以在这些方法内部修改或添加类似`BeanDefinition`、创建`Bean`代理等操作。
 
 很多`Spring`框架内部使用了`BeanPostProcessor`来实现一些功能，例如`@Autowired`功能是通过`AutowiredAnnotationBeanPostProcessor`来实现。
