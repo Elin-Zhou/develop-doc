@@ -1,6 +1,6 @@
 本文将描述如何通过BeanPostProcessor以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于Mybatis的mapper仅需要定义接口，而无需手动生成实现类。
 
-阅读本文之前，请先了解学习`BeanPostProcessor`，可以参考此文[Spring支持的扩展接口](./Spring支持的扩展接口.md)
+阅读本文之前，请先了解学习`BeanPostProcessor`、`InstantiationAwareBeanPostProcessor`以及`BeanDefinitionRegistryPostProcessor`，可以参考此文[Spring支持的扩展接口](./Spring支持的扩展接口.md)；同时需要了解`FactoryBean`与`ClassPathBeanDefinitionScanner`的概念，参考[Spring常用工具](./Spring常用工具.md)
 
 为了结合实际需求，请读者设想如下场景：在对接某第三方公司时，对方提供了Http接口以供调用，如果使用常规方式，需要在代码中拼接url，然后使用诸如HttpClient一类的工具获取结果响应。如果这样的代码散落在项目当中，将会非常影响观感，有些同学会做一些封装，为每个http接口封装一个工具方法以供调用，但是需要写很多接口及其实现类，其代码大同小异，本文就将对此场景进行封装，最终实现仅需要开发同学创建对应的接口（Interface），无需写实现类，在调用端直接用@Autowire注入即可调用。
 
@@ -15,7 +15,7 @@
 1. 创建接口的实现类
 2. 将实现类注入bean中
 
-其中的第二点其实不需要刻意编写代码来实现，只要由Spring容器来创建对应的代理类，再通过@Autowire就已经可以自动注入了（额外讲一个知识点，@Autowire注入是由AutowiredAnnotationBeanPostProcessorl来实现的，也是本文的主角BeanPostProcessor的一个实现类）
+其中的第二点其实不需要刻意编写代码来实现，只要由Spring容器来创建对应的代理类，再通过@Autowire就已经可以自动注入了（额外讲一个知识点，@Autowire注入是由AutowiredAnnotationBeanPostProcessor来实现的，也是本文的主角BeanPostProcessor的一个实现类）
 
 所以，我们只需要考虑怎么在Spring体系下载容器中创建一个代理类就好，了解Spring容器启动原理的同学都知道，Spring创建一个bean主要分为两步，先获取对应bean的BeanDefinition，然后再通过BeanDefinition来创建对应实例。
 
