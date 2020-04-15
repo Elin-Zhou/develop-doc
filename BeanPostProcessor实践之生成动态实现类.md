@@ -1,8 +1,8 @@
-本文将描述如何通过BeanPostProcessor以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于Mybatis的mapper仅需要定义接口，而无需手动生成实现类。
+本文将描述如何通过`BeanPostProcessor`以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于`Mybatis`的`mapper`仅需要定义接口，而无需手动生成实现类。
 
 阅读本文之前，请先了解学习`BeanPostProcessor`、`InstantiationAwareBeanPostProcessor`以及`BeanDefinitionRegistryPostProcessor`，可以参考此文[Spring支持的扩展接口](./Spring支持的扩展接口.md)；同时需要了解`FactoryBean`与`ClassPathBeanDefinitionScanner`的概念，参考[Spring常用工具](./Spring常用工具.md)
 
-为了结合实际需求，请读者设想如下场景：在对接某第三方公司时，对方提供了Http接口以供调用，如果使用常规方式，需要在代码中拼接url，然后使用诸如HttpClient一类的工具获取结果响应。如果这样的代码散落在项目当中，将会非常影响观感，有些同学会做一些封装，为每个http接口封装一个工具方法以供调用，但是需要写很多接口及其实现类，其代码大同小异，本文就将对此场景进行封装，最终实现仅需要开发同学创建对应的接口（Interface），无需写实现类，在调用端直接用@Autowire注入即可调用。
+为了结合实际需求，请读者设想如下场景：在对接某第三方公司时，对方提供了Http接口以供调用，如果使用常规方式，需要在代码中拼接url，然后使用诸如`HttpClient`一类的工具获取结果响应。如果这样的代码散落在项目当中，将会非常影响观感，有些同学会做一些封装，为每个http接口封装一个工具方法以供调用，但是需要写很多接口及其实现类，其代码大同小异，本文就将对此场景进行封装，最终实现仅需要开发同学创建对应的接口（`Interface`），无需写实现类，在调用端直接用`@Autowire`注入即可调用。
 
 本文主要是以学习为目的而并非解决实际问题，上述的场景也只是工作中很简单的一个场景，所以本文将使用两种方式来实现该需求，以记录更多有用的知识点。
 
@@ -13,21 +13,21 @@
 
 再简单看一下我们的需求，整理一下主要是要实现两点
 1. 创建接口的实现类
-2. 将实现类注入bean中
+2. 将实现类注入`bean`中
 
-其中的第二点其实不需要刻意编写代码来实现，只要由Spring容器来创建对应的代理类，再通过@Autowire就已经可以自动注入了（额外讲一个知识点，@Autowire注入是由AutowiredAnnotationBeanPostProcessor来实现的，也是本文的主角BeanPostProcessor的一个实现类）
+其中的第二点其实不需要刻意编写代码来实现，只要由Spring容器来创建对应的代理类，再通过@Autowire就已经可以自动注入了（额外讲一个知识点，`@Autowire`注入是由`AutowiredAnnotationBeanPostProcessor`来实现的，也是本文的主角`BeanPostProcessor`的一个实现类）
 
-所以，我们只需要考虑怎么在Spring体系下载容器中创建一个代理类就好，了解Spring容器启动原理的同学都知道，Spring创建一个bean主要分为两步，先获取对应bean的BeanDefinition，然后再通过BeanDefinition来创建对应实例。
+所以，我们只需要考虑怎么在`Spring`体系下载容器中创建一个代理类就好，了解Spring容器启动原理的同学都知道，`Spring`创建一个`bean`主要分为两步，先获取对应`bean`的`BeanDefinition`，然后再通过`BeanDefinition`来创建对应实例。
 
-方法一将描述如何通过FactoryBean创建代理类，这种是比较常见的动态创建实现类的方式，例如Mybatis就是通过此方式。方法二是通过InstantiationAwareBeanPostProcessor来创建，根据前面讲过的InstantiationAwareBeanPostProcessor的简介可以了解到，InstantiationAwareBeanPostProcessor的postProcessBeforeInstantiation方法会被Spring在创建实例前调用，如果该方法返回了不为null的对象，则容器将直接使用该对象而不执行后续的实例化代码。
+方法一将描述如何通过`FactoryBean`创建代理类，这种是比较常见的动态创建实现类的方式，例如`Mybatis`就是通过此方式。方法二是通过`InstantiationAwareBeanPostProcessor`来创建，根据前面讲过的`InstantiationAwareBeanPostProcessor`的简介可以了解到，`InstantiationAwareBeanPostProcessor`的`postProcessBeforeInstantiation`方法会被`Spring`在创建实例前调用，如果该方法返回了不为`null`的对象，则容器将直接使用该对象而不执行后续的实例化代码。
 
 ## 实现
 
 ### 准备工作
 
-因为要模拟调用http接口，所以这里提供了两个http方法，分别有一个和两个参数，返回参数简单起见使用了String类型。
+因为要模拟调用`http`接口，所以这里提供了两个`http`方法，分别有一个和两个参数，返回参数简单起见使用了`String`类型。
 
-```
+```java
 package com.xxelin.mammon.http;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +54,7 @@ public class HelloController {
 
 
 定义一个注解，用来标记是http接口，有一个value参数，表示实际调用的接口地址
-```
+```java
 package com.xxelin.mammon.http;
 
 import java.lang.annotation.Documented;
@@ -76,8 +76,8 @@ public @interface RemoteService {
 }
 ```
 
-根据http接口实现一个java接口，这个接口就是最终可以直接调用的，偷个懒，复用了springmvc中的RequestMapping和RequestParam两个注解，这里已经改变了原来的语义，自定义一个新的也是可以的，所以不要奇怪为什么要用这两个注解了。
-```
+根据http接口实现一个`java`接口，这个接口就是最终可以直接调用的，偷个懒，复用了`springmvc`中的`RequestMapping`和`RequestParam`两个注解，这里已经改变了原来的语义，自定义一个新的也是可以的，所以不要奇怪为什么要用这两个注解了。
+```java
 package com.xxelin.mammon.http;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -100,7 +100,7 @@ public interface HelloService {
 
 
 #### 第一步：创建FactoryBean
-```
+```java
 package com.xxelin.mammon.http;
 
 import com.alibaba.fastjson.JSON;
@@ -177,7 +177,7 @@ public class RemoteServiceFactoryBean<T> implements FactoryBean<T> {
 ```
 
 #### 第二步：注册BeanDefinition
-```
+```java
 package com.xxelin.mammon.http;
 
 import org.springframework.beans.BeansException;
@@ -253,8 +253,8 @@ public class RemoteServiceRegistryProcessor implements BeanDefinitionRegistryPos
 
 #### 第一步：注册BeanDefinition
 
-这一步跟第一种方式差不多，但是有细小的差别——不需要重写doScan方法，详细原因请看代码中的注释
-```
+这一步跟第一种方式差不多，但是有细小的差别——不需要重写`doScan`方法，详细原因请看代码中的注释
+```java
 package com.xxelin.mammon.http;
 
 import org.springframework.beans.BeansException;
@@ -307,8 +307,8 @@ public class RemoteServiceRegistryProcessor implements BeanDefinitionRegistryPos
 
 
 #### 第二步：实现InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation
-简单期间，直接在第一部使用的RemoteServiceRegistryProcessor类中，实现InstantiationAwareBeanPostProcessor接口并覆盖postProcessBeforeInstantiation方法
-```
+简单期间，直接在第一部使用的`RemoteServiceRegistryProcessor`类中，实现`InstantiationAwareBeanPostProcessor`接口并覆盖`postProcessBeforeInstantiation`方法
+```java
 @Override
 public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
     if (beanClass.isAnnotationPresent(RemoteService.class)) {
@@ -352,14 +352,14 @@ public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName
 }
 ```
 
-可以发现，这个方法的实现与第一种方案中RemoteServiceFactoryBean类的getObject()方法基本一致，因为这两个方法都会被Spring调用，来获得Spring需要的bean。
+可以发现，这个方法的实现与第一种方案中`RemoteServiceFactoryBean`类的`getObject()`方法基本一致，因为这两个方法都会被`Spring`调用，来获得`Spring`需要的`bean`。
 
 ## 使用
 
-通过@Autowire或者@Resource把HelloService类注入需要使用的地方，即可直接调用HelloService的方法进行使用。
+通过`@Autowire`或者`@Resource`把`HelloService`类注入需要使用的地方，即可直接调用`HelloService`的方法进行使用。
 
 ## 总结
 
-其实第一种方案中，可以用ImportBeanDefinitionRegistrar接口来代替BeanDefinitionRegistryPostProcessor，两种方式大同小异，再次不再赘述，感兴趣的读者可以自行实现。
+其实第一种方案中，可以用`ImportBeanDefinitionRegistrar`接口来代替`BeanDefinitionRegistryPostProcessor`，两种方式大同小异，再次不再赘述，感兴趣的读者可以自行实现。
 
-本文中的代码不多，难度也不大，主要是需要了解Spring的一些机制比如BeanDefinition是什么，如何注册，在什么时机返回代理类等等，了解了这些内容以后，实现本文的功能也就比较容易了。
+本文中的代码不多，难度也不大，主要是需要了解`Spring`的一些机制比如`BeanDefinition`是什么，如何注册，在什么时机返回代理类等等，了解了这些内容以后，实现本文的功能也就比较容易了。
